@@ -265,7 +265,7 @@ void read_words(FILE *f) {
     int it = 0;
     Gate_record *outerc = gateRecords;
     Gate_record *innerc = gateRecords;
-    while (outerc != NULL && it < 1000){
+    while (outerc != NULL){
         innerc = gateRecords;
         while ( innerc != NULL){
             if(strstr(outerc->inputs,innerc->GateName) != NULL && outerc->GateType != 1){
@@ -301,7 +301,7 @@ void read_words(FILE *f) {
 }
 
 int main() {
-    FILE *file = fopen("s27.txt", "r");
+    FILE *file = fopen("s35.txt", "r");
 
     if (file == NULL) {
         perror("Error opening file");
