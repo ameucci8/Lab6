@@ -527,8 +527,8 @@ int main() {
     double execution_time;
     gettimeofday(&start_time, NULL);
 
-    //read_words(file1, input_file1);
-    read_words(file2, input_file2);
+    read_words(file1, input_file1);
+    //read_words(file2, input_file2);
     fclose(file1);
 
     gettimeofday(&end_time, NULL);
