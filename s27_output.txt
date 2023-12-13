@@ -1,0 +1,51 @@
+Gate_records in the linked list:
+GateName: G0 , GateType: 0, Level: 0, Output: false, Number: 0, Fanout: G0, Fanin: None 
+GateName: G1 , GateType: 0, Level: 0, Output: false, Number: 1, Fanout: G1, Fanin: None 
+GateName: G2 , GateType: 0, Level: 0, Output: false, Number: 2, Fanout: G2, Fanin: None 
+GateName: G3 , GateType: 0, Level: 0, Output: false, Number: 3, Fanout: G3, Fanin: None 
+GateName: G5 , GateType: 1, Level: 0, Output: false, Number: 4, Fanout: G5, Fanin: G10 
+GateName: G6 , GateType: 1, Level: 0, Output: false, Number: 5, Fanout: G6, Fanin: G11 
+GateName: G7 , GateType: 1, Level: 0, Output: false, Number: 6, Fanout: G7, Fanin: G13 
+GateName: G14 , GateType: 6, Level: 1, Output: false, Number: 7, Fanout: G14, Fanin: G0 
+GateName: G8 , GateType: 3, Level: 2, Output: false, Number: 8, Fanout: G8, Fanin: G6 G14 
+GateName: G12 , GateType: 4, Level: 1, Output: false, Number: 9, Fanout: G12, Fanin: G7 G1 
+GateName: G15 , GateType: 2, Level: 3, Output: false, Number: 10, Fanout: G15, Fanin: G8 G12 
+GateName: G16 , GateType: 2, Level: 3, Output: false, Number: 11, Fanout: G16, Fanin: G8 G3 
+GateName: G13 , GateType: 4, Level: 2, Output: false, Number: 12, Fanout: G13, Fanin: G12 G2 
+GateName: G9 , GateType: 5, Level: 4, Output: false, Number: 13, Fanout: G9, Fanin: G15 G16 
+GateName: G11 , GateType: 4, Level: 5, Output: false, Number: 14, Fanout: G11, Fanin: G9 G5 
+GateName: G10 , GateType: 4, Level: 6, Output: false, Number: 15, Fanout: G10, Fanin: G11 G14 
+GateName: G17 , GateType: 6, Level: 6, Output: true, Number: 16, Fanout: G17, Fanin: G11 
+
+Number of Gates at each level:
+Level 0: 7 gates
+Level 1: 2 gates
+Level 2: 2 gates
+Level 3: 2 gates
+Level 4: 1 gates
+Level 5: 1 gates
+Level 6: 2 gates
+
+Total number of gates: 17
+
+Inputs: 0000
+State: 444
+Output: 4
+
+Inputs: 0010
+State: 044
+Output: 4
+
+Inputs: 0100
+State: 040
+Output: 4
+
+Inputs: 1000
+State: 041
+Output: 1
+
+Inputs: 1111
+State: 101
+Output: 1
+
+Execution Time: 0.000216 seconds
