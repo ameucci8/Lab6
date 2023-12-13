@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 
 typedef struct Gate_record {
     char GateName[1024];
@@ -11,10 +12,10 @@ typedef struct Gate_record {
     char outputs[1024];
     char inputs[1024];
     int out;
+    int fanin[2];
     struct Gate_record *next;
 } Gate_record;
 
-//count spaces in a word
 int countSpacesInWord(const char *word) {
     int spaceCount = 0;
     int i;
@@ -26,7 +27,6 @@ int countSpacesInWord(const char *word) {
     return spaceCount;
 }
 
-//create additional space after each name
 void addSpaceToGateNames(Gate_record *head) {
     Gate_record *current = head;
 
@@ -36,7 +36,6 @@ void addSpaceToGateNames(Gate_record *head) {
     }
 }
 
-//get rid of commas in structure
 void replaceCommasWithSpaces(Gate_record *head) {
     Gate_record *current = head;
 
@@ -50,7 +49,7 @@ void replaceCommasWithSpaces(Gate_record *head) {
         current = current->next;
     }
 }
-//code to add a gate to the linked list
+
 Gate_record *addGateRecord(Gate_record *tail, const char *GateName, int GateType, int Level, const char *outputs, const char *inputs) {
     Gate_record *newNode = (Gate_record *)malloc(sizeof(Gate_record));
     if (newNode == NULL) {
@@ -72,7 +71,6 @@ Gate_record *addGateRecord(Gate_record *tail, const char *GateName, int GateType
     }
 }
 
-//code to get the outputs and inputs
 void getOutAndIn(const char* input, char* first_element, int max_element_length, char* rest, int max_rest_length) {
     char* comma_position = strchr(input, ',');
 
@@ -95,7 +93,6 @@ void getOutAndIn(const char* input, char* first_element, int max_element_length,
     }
 }
 
-//get output from paranetheses
 void getOutput(const char* input, char* result, int max_length) {
     char* comma_position = strchr(input, ',');
 
@@ -108,17 +105,14 @@ void getOutput(const char* input, char* result, int max_length) {
     }
 }
 
-//code to update a given gate 
 void updateGateRecord(Gate_record *head, const char *targetName, int newOutput) {
     Gate_record *current = head;
 
     while (current != NULL) {
         if (strcmp(current->GateName, targetName) == 0) {
 
-            //current->Level = newLevel;
             current->output = newOutput;
-            //current->Number = newNumber;
-            return; // Exit the function once the update is done
+            return;
         }
         current = current->next;
     }
@@ -126,35 +120,28 @@ void updateGateRecord(Gate_record *head, const char *targetName, int newOutput) 
     printf("Gate_record with name '%s' not found.\n", targetName);
 }
 
-//main code
 void read_words(FILE *f, FILE *inf) {
     char x[1024];
-    char last[1024] = "";       // Initialize last to an empty string
-    char secondtL[1024] = "";  // Initialize secondToLast to an empty string
+    char last[1024] = "";
+    char secondtL[1024] = "";
     char output[1024];
-    Gate_record *gateRecords = NULL;  // Initialize the linked list to NULL
-    Gate_record *tail = NULL;  // Keep track of the tail of the linked list    
-    
+    Gate_record *gateRecords = NULL;
+    Gate_record *tail = NULL;
     while (fscanf(f, " %1023s", x) == 1) {
-
         if (strchr(x, '(') != NULL || strchr(x, ')') != NULL) {
             printf("");
         }
-
         if (strcmp(last, "input") == 0) {
             char GateName[1024];
             int x_length = strlen(x);
             x[x_length - 1] = '\0';
             strcpy(GateName, x);
             int GateType = 0;
-
             tail = addGateRecord(tail, GateName, GateType, 0, GateName, "None");
             if (gateRecords == NULL) {
-                gateRecords = tail;  // Update the head of the linked list
+                gateRecords = tail;
             }
         }
-
-
         if (strcmp(secondtL, "dff") == 0) {
             char GateName[1024];
             strcpy(GateName, last);
@@ -162,13 +149,11 @@ void read_words(FILE *f, FILE *inf) {
             char inputs[1024];
             getOutAndIn(x, outputs, sizeof(outputs), inputs, sizeof(inputs));
             int GateType = 1;
-
             tail = addGateRecord(tail, outputs, GateType, 0, outputs, inputs);
             if (gateRecords == NULL) {
-                gateRecords = tail;  // Update the head of the linked list
+                gateRecords = tail;
             }
         }
-
         if (strcmp(secondtL, "dff1") == 0) {
             char GateName[1024];
             strcpy(GateName, last);
@@ -176,13 +161,11 @@ void read_words(FILE *f, FILE *inf) {
             char inputs[1024];
             getOutAndIn(x, outputs, sizeof(outputs), inputs, sizeof(inputs));
             int GateType = 1;
-
             tail = addGateRecord(tail, outputs, GateType, 0, outputs, inputs);
             if (gateRecords == NULL) {
-                gateRecords = tail;  // Update the head of the linked list
+                gateRecords = tail;
             }
         }
-
         if (strcmp(secondtL, "nor") == 0) {
             char GateName[1024];
             strcpy(GateName, last);
@@ -190,13 +173,11 @@ void read_words(FILE *f, FILE *inf) {
             char inputs[1024];
             getOutAndIn(x, outputs, sizeof(outputs), inputs, sizeof(inputs));
             int GateType = 4;
-
             tail = addGateRecord(tail, outputs, GateType, -1, outputs, inputs);
             if (gateRecords == NULL) {
-                gateRecords = tail;  // Update the head of the linked list
+                gateRecords = tail;
             }
         }
-
         if (strcmp(secondtL, "not") == 0) {
             char GateName[1024];
             strcpy(GateName, last);
@@ -204,13 +185,11 @@ void read_words(FILE *f, FILE *inf) {
             char inputs[1024];
             getOutAndIn(x, outputs, sizeof(outputs), inputs, sizeof(inputs));
             int GateType = 6;
-
             tail = addGateRecord(tail, outputs, GateType, -1, outputs, inputs);
             if (gateRecords == NULL) {
-                gateRecords = tail;  // Update the head of the linked list
+                gateRecords = tail;
             }
         }
-
         if (strcmp(secondtL, "and") == 0) {
             char GateName[1024];
             strcpy(GateName, last);
@@ -218,13 +197,11 @@ void read_words(FILE *f, FILE *inf) {
             char inputs[1024];
             getOutAndIn(x, outputs, sizeof(outputs), inputs, sizeof(inputs));
             int GateType = 3;
-
             tail = addGateRecord(tail, outputs, GateType, -1, outputs, inputs);
             if (gateRecords == NULL) {
-                gateRecords = tail;  // Update the head of the linked list
+                gateRecords = tail;
             }
         }
-
         if (strcmp(secondtL, "nand") == 0) {
             char GateName[1024];
             strcpy(GateName, last);
@@ -232,13 +209,11 @@ void read_words(FILE *f, FILE *inf) {
             char inputs[1024];
             getOutAndIn(x, outputs, sizeof(outputs), inputs, sizeof(inputs));
             int GateType = 5;
-
             tail = addGateRecord(tail, outputs, GateType, -1, outputs, inputs);
             if (gateRecords == NULL) {
-                gateRecords = tail;  // Update the head of the linked list
+                gateRecords = tail;
             }
         }
-
         if (strcmp(secondtL, "or") == 0) {
             char GateName[1024];
             strcpy(GateName, last);
@@ -246,14 +221,11 @@ void read_words(FILE *f, FILE *inf) {
             char inputs[1024];
             getOutAndIn(x, outputs, sizeof(outputs), inputs, sizeof(inputs));
             int GateType = 2;
-
             tail = addGateRecord(tail, outputs, GateType, -1, outputs, inputs);
             if (gateRecords == NULL) {
-                gateRecords = tail;  // Update the head of the linked list
+                gateRecords = tail;
             }
         }
-
-
         if (strcmp(last, "output") == 0) {
             int x_length = strlen(x);
                 if (x_length >= 2) {
@@ -262,17 +234,11 @@ void read_words(FILE *f, FILE *inf) {
             strcpy(output, x);
         }
 
-
-        //Update last with the current word and secondtL with last
         strcpy(secondtL, last);
         strcpy(last, x);
-
     }
-
     fseek(f, 0, SEEK_SET);
-
     while (fscanf(f, " %1023s", x) == 1) {
-
         if (strcmp(last, "output") == 0) {
             int x_length = strlen(x);
             if (x_length >= 2) {
@@ -280,27 +246,37 @@ void read_words(FILE *f, FILE *inf) {
             }
             updateGateRecord(gateRecords, x, 1);
         }
-
         strcpy(secondtL, last);
         strcpy(last, x);
     }
 
-    //printf("\nOutput: %s\n", output);
-    //updateGateRecord(gateRecords, output, 1);
     addSpaceToGateNames(gateRecords);
     replaceCommasWithSpaces(gateRecords);
 
-    //Assign level
+    Gate_record *current = gateRecords;
+    int number = 0;
+    while (current != NULL) {
+            current->Number = number;
+            number++;
+            current = current->next;
+    }
+
     int c = 0;
     int it = 0;
+    int fan = 0;
     Gate_record *outerc = gateRecords;
     Gate_record *innerc = gateRecords;
     while (outerc != NULL){
+        fan = 0;
         innerc = gateRecords;
         while ( innerc != NULL){
+            if(strstr(outerc->inputs,innerc->GateName) != NULL){
+                outerc->fanin[fan] = innerc->Number;
+                fan++;
+            }
             if(strstr(outerc->inputs,innerc->GateName) != NULL && outerc->GateType != 1){
                 if((innerc->Level + 1) > outerc->Level){
-                    //printf("%s contains %s\n", outerc->inputs, innerc->GateName);
+
                     outerc->Level = innerc->Level + 1;
                     c = 1;
                 }else{
@@ -318,10 +294,8 @@ void read_words(FILE *f, FILE *inf) {
         }
     }
 
-
-    //print the gate records
     printf("\nGate_records in the linked list:\n");
-    Gate_record *current = gateRecords;
+    current = gateRecords;
     int highest_lvl = 0;
     int spaces;
     int bruh = 0;
@@ -334,12 +308,10 @@ void read_words(FILE *f, FILE *inf) {
                 highest_lvl = current->Level;
         }
         if(current->Level == 2){
-        //      printf("GateName: %s, GateType: %d, Level: %d, Output: %s, Number: %d, Fanout: %s, Fanin: %s\n",
-        //         current->GateName, current->GateType, current->Level, current->output ? "true" : "false", current->Number, current->outputs, current->inputs);
-        }
-        printf("GateName: %s, GateType: %d, Level: %d, Output: %s, Fanout: %s, Fanin: %s\n",
-               current->GateName, current->GateType, current->Level, current->output ? "true" : "false", current->outputs, current->inputs);
 
+        }
+        printf("GateName: %s, GateType: %d, Level: %d, Output: %s, Number: %d, Fanout: %s, Fanin: %s, Fanin[0]: %d, Fanin[1]: %d\n",
+               current->GateName, current->GateType, current->Level, current->output ? "true" : "false", current->Number, current->outputs, current->inputs, current->fanin[0], current->fanin[1]);
         current = current->next;
     }
     int lvl;
@@ -359,167 +331,139 @@ void read_words(FILE *f, FILE *inf) {
         }
         printf("Level %d: %d gates\n", lvl, gn);
     }
-
     printf("\nTotal number of gates: %d\n", total);
     printf("\n");
 
 
-    //SIMULATION\\
 
+        //Simulation//
     int a;
     int b;
     int loc = 0;
+    int outf[total];
+    int ii;
 
-    //Initialization of dffs to undefined (4)
-    current = gateRecords;
-    while (current != NULL) {
-            if(current->GateType == 1){
-                current->out = 4;
-            }
-            current = current->next;
+    for(ii = 0; ii < total; ii++) {
+        outf[ii] = 4;
     }
 
-
-    //Inputs initialized at each new input
+  //printf("STARTING SIMULATION\n"); 
   while (fscanf(inf, " %1023s", x) == 1) {
-    //printf("Current word: %s", x);
-    //printf(" and current input: %d in decimal and %s in string\n", x[loc], x[loc]);
+    //printf("Current word: %s\n", x);
+
     loc = 0;
     printf("Inputs: ");
     current = gateRecords;
     while (current != NULL) {
             if(current->GateType == 0){
                 if (x[loc] == '0') {
-                        current->out = 0;
-                        printf("%d", current->out);
+                        outf[current->Number] = 0;
+                        printf("%d", outf[current->Number]);
+
                 } else {
-                        current->out = 1;
-                        printf("%d", current->out);
+                        outf[current->Number] = 1;
+                        printf("%d", outf[current->Number]);
+
                 }
 
-                //current->out = x[loc];
-                //printf("%s", x[loc]);
                 loc++;
             }
             current = current->next;
     }
 
-
-
-    //Post-Initialization       
+    //printf("\nSTARTING LEVEL CHECKS\n"); 
     for(lvl=1; lvl <= highest_lvl; lvl++){
         outerc = gateRecords;
-        //printf("\nLEVEL %d:\n", lvl);
+
         while (outerc != NULL){
-            if(outerc->Level == lvl){ //for each gate at this level
-                innerc = gateRecords;
-                a = -1;
-                b = -1;
-                    while ( innerc != NULL){
-                        if(strstr(outerc->inputs,innerc->GateName) != NULL){  //if current gate is part of inputs of gate at this level
-                            //printf("input located, input is %d from gate %s\n", innerc->out, innerc->GateName);
-                            if(a == -1){
-                                //printf("a found\n");
-                                a = innerc->out;
-                            }else{
-                                b = innerc->out;
-                            }
-                        }
-                        innerc = innerc->next;
-                    }
+            if(outerc->Level == lvl){
+
+                a = outf[outerc->fanin[0]];
+                b = outf[outerc->fanin[1]];
                 //printf("For gate %s the inputs are: %d and %d", outerc->GateName, a, b);
-                if(outerc->GateType == 3){ //and
-                    if(a == 5 && b == 5){
-                        outerc->out = 5;
-                    }else if(a == 4 && b == 4){
-                        outerc->out = 4;
-                    }else if((a==4 && b==5) || (a==5 && b==4)){
-                        outerc->out = 0;
-                    }else if(a == 5){
-                        outerc->out = b ? 5 : 0;
-                    }else if(b == 5){
-                        outerc->out = a ? 5 : 0;
+                if(outerc->GateType == 3){
+
+                    if(a == 4 && b == 4){
+                        outf[outerc->Number] = 4;
+
                     }else if(a == 4){
-                        outerc->out = b ? 4 : 0;
+                        outf[outerc->Number] = b ? 4 : 0;
+
                     }else if(b == 4){
-                        outerc->out = a ? 4 : 0;
+                        outf[outerc->Number] = a ? 4 : 0;
+
                     }else{
-                        outerc->out = a && b;
+                        outf[outerc->Number] = a && b;
+
                     }
-                }else if(outerc->GateType == 2){ //or
-                    if(a == 5 && b == 5){
-                        outerc->out = 5;
-                    }else if(a == 4 && b == 4){
-                        outerc->out = 4;
-                    }else if((a==4 && b==5) || (a==5 && b==4)){
-                        outerc->out = 1;
-                    }else if(a == 5){
-                        outerc->out = b ? 1 : 5;
-                    }else if(b == 5){
-                        outerc->out = a ? 1 : 5;
+                }else if(outerc->GateType == 2){
+
+                    if(a == 4 && b == 4){
+                        outf[outerc->Number] = 4;
+
                     }else if(a == 4){
-                        outerc->out = b ? 1 : 4;
+                        outf[outerc->Number] = b ? 1 : 4;
+
                     }else if(b == 4){
-                        outerc->out = a ? 1 : 4;
+                        outf[outerc->Number] = a ? 1 : 4;
+
                     }else{
-                        outerc->out = a || b;
+                        outf[outerc->Number] = a || b;
+
                     }
-                }else if(outerc->GateType == 5){ //nand
-                    if(a == 5 && b == 5){
-                        outerc->out = 5;
-                    }else if(a == 4 && b == 4){
-                        outerc->out = 4;
-                    }else if((a==4 && b==5) || (a==5 && b==4)){
-                        outerc->out = 1;
-                    }else if(a == 5){
-                        outerc->out = b ? 4 : 1;
-                    }else if(b == 5){
-                        outerc->out = a ? 4 : 1;
+                }else if(outerc->GateType == 5){
+
+                    if(a == 4 && b == 4){
+                        outf[outerc->Number] = 4;
+
                     }else if(a == 4){
-                        outerc->out = b ? 5 : 1;
+                        outf[outerc->Number] = b ? 4 : 1;
+
                     }else if(b == 4){
-                        outerc->out = a ? 5 : 1;
+                        outf[outerc->Number] = a ? 4 : 1;
+
                     }else{
-                        outerc->out = !(a && b);
+                        //printf("outerc->GateName: %s\n", outerc->GateName);
+                        //printf("outerc->Number: %d\n", outerc->Number);
+                        outf[outerc->Number] = !(a && b);
+
                     }
-                }else if(outerc->GateType == 4){ //nor
-                    if(a == 5 && b == 5){
-                        outerc->out = 5;
-                    }else if(a == 4 && b == 4){
-                        outerc->out = 4;
-                    }else if((a==4 && b==5) || (a==5 && b==4)){
-                        outerc->out = 0;
-                    }else if(a == 5){
-                        outerc->out = b ? 0 : 4;
-                    }else if(b == 5){
-                        outerc->out = a ? 0 : 4;
+                }else if(outerc->GateType == 4){
+
+                    if(a == 4 && b == 4){
+                        outf[outerc->Number] = 4;
+
                     }else if(a == 4){
-                        outerc->out = b ? 0 : 5;
+                        outf[outerc->Number] = b ? 0 : 4;
+
                     }else if(b == 4){
-                        outerc->out = a ? 0 : 5;
+                        outf[outerc->Number] = a ? 0 : 4;
+
                     }else{
-                        outerc->out = !(a || b);
+                        outf[outerc->Number] = !(a || b);
+
                     }
-                }else if(outerc->GateType == 6){ //not
+                }else if(outerc->GateType == 6){
+
                     if(a == 4){
-                        outerc->out = 5;
-                    }else if(a == 5){
-                        outerc->out = 4;
+                        outf[outerc->Number] = 4;
+
                     }else{
-                        outerc->out = !a;
+                        //printf("BRUH: %d\n", a);
+                        outf[outerc->Number] = !a;
+
                     }
                 }
-                //printf(" and output is: %d\n", outerc->out);          
+                //printf(" and output is: %d\n", outf[outerc->Number]);       
             }
             outerc = outerc->next;
         }
     }
-
     current = gateRecords;
     printf("\nState: ");
     while (current != NULL) {
             if(current->GateType == 1){
-                printf("%d", current->out);
+                printf("%d", outf[current->Number]);
             }
             current = current->next;
     }
@@ -527,49 +471,55 @@ void read_words(FILE *f, FILE *inf) {
     current = gateRecords;
     while (current != NULL) {
             if(current->output == 1){
-                printf("%d", current->out);
+                printf("%d", outf[current->Number]);
+
             }
             current = current->next;
     }
     printf("\n");
     printf("\n");
 
-    //DFF values updated for next run
+    //printf("STARTING DFF UPDATES\n"); 
     outerc = gateRecords;
     while (outerc != NULL){
-        innerc = gateRecords;
-        while ( innerc != NULL){
-            if(strstr(outerc->inputs,innerc->GateName) != NULL && outerc->GateType == 1){
-                outerc->out = innerc->out;
-                //printf("\nDFF gate %s was assigned out %d from gate %s\n", outerc->GateName, innerc->out, innerc->GateName);
-            }
-            innerc = innerc->next;
+        if(outerc->GateType == 1){
+            outf[outerc->Number] = outf[outerc->fanin[0]];
         }
-        outerc = outerc->next;
 
+        outerc = outerc->next;
     }
 
+    //printf("preparing for next word...\n");
   }
-        //printf("\n%s\n", bruh ? "3 inputs cuh" : "Only 2's and 1's"); 
-}
-
-void simulate(){
 
 }
-
 int main() {
-    //FILE *file = fopen("s35.txt", "r");
-    FILE *file = fopen("s27.txt", "r");
-    if (file == NULL) {
+    FILE *file2 = fopen("s35.txt", "r");
+    FILE *file1 = fopen("s27.txt", "r");
+    if (file1 == NULL) {
         perror("Error opening file");
         return 1;
     }
-    FILE *input_file = fopen("s27_test.txt", "r");
-    //FILE *input_file = fopen("s35_test.txt", "r");
+    FILE *input_file1 = fopen("s27_test.txt", "r");
+    FILE *input_file2 = fopen("s35_test.txt", "r");
 
-    read_words(file, input_file);
+    struct timeval start_time, end_time;
+    double execution_time;
 
-    fclose(file);
+    gettimeofday(&start_time, NULL);
+
+    //read_words(file1, input_file1);
+    read_words(file2, input_file2);
+    fclose(file1);
+
+    gettimeofday(&end_time, NULL);
+
+    execution_time = (end_time.tv_sec - start_time.tv_sec) +
+                     (end_time.tv_usec - start_time.tv_usec) / 1e6;
+
+    printf("Execution Time: %f seconds\n", execution_time);
+
 
     return 0;
 }
+ 
