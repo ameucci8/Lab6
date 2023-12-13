@@ -3,6 +3,7 @@
 #include <string.h>
 #include <sys/time.h>
 
+//Defining the structure of the Gates
 typedef struct Gate_record {
     char GateName[1024];
     int GateType;
@@ -16,6 +17,7 @@ typedef struct Gate_record {
     struct Gate_record *next;
 } Gate_record;
 
+//Used to count spaces in given word
 int countSpacesInWord(const char *word) {
     int spaceCount = 0;
     int i;
@@ -27,6 +29,7 @@ int countSpacesInWord(const char *word) {
     return spaceCount;
 }
 
+//Used to add space at end of names for indexing error purposes
 void addSpaceToGateNames(Gate_record *head) {
     Gate_record *current = head;
 
@@ -36,6 +39,7 @@ void addSpaceToGateNames(Gate_record *head) {
     }
 }
 
+//Used to replace commas with spaces of parse error purposes
 void replaceCommasWithSpaces(Gate_record *head) {
     Gate_record *current = head;
 
@@ -50,6 +54,7 @@ void replaceCommasWithSpaces(Gate_record *head) {
     }
 }
 
+//Code to add a Gate to the linked list
 Gate_record *addGateRecord(Gate_record *tail, const char *GateName, int GateType, int Level, const char *outputs, const char *inputs) {
     Gate_record *newNode = (Gate_record *)malloc(sizeof(Gate_record));
     if (newNode == NULL) {
@@ -71,6 +76,7 @@ Gate_record *addGateRecord(Gate_record *tail, const char *GateName, int GateType
     }
 }
 
+//Used to get the inputs and outputs of a particular gate
 void getOutAndIn(const char* input, char* first_element, int max_element_length, char* rest, int max_rest_length) {
     char* comma_position = strchr(input, ',');
 
@@ -93,6 +99,7 @@ void getOutAndIn(const char* input, char* first_element, int max_element_length,
     }
 }
 
+//Used to grab the output of a gate
 void getOutput(const char* input, char* result, int max_length) {
     char* comma_position = strchr(input, ',');
 
@@ -105,6 +112,7 @@ void getOutput(const char* input, char* result, int max_length) {
     }
 }
 
+//Used to edit parameters of a particular gate given its name
 void updateGateRecord(Gate_record *head, const char *targetName, int newOutput) {
     Gate_record *current = head;
 
@@ -120,6 +128,9 @@ void updateGateRecord(Gate_record *head, const char *targetName, int newOutput) 
     printf("Gate_record with name '%s' not found.\n", targetName);
 }
 
+//////////////////////
+// PARSE & SIMULATE //
+/////////////////////
 void read_words(FILE *f, FILE *inf) {
     char x[1024];
     char last[1024] = "";
@@ -253,6 +264,7 @@ void read_words(FILE *f, FILE *inf) {
     addSpaceToGateNames(gateRecords);
     replaceCommasWithSpaces(gateRecords);
 
+    //Assign numbers to each gate for indexing purposes
     Gate_record *current = gateRecords;
     int number = 0;
     while (current != NULL) {
@@ -261,6 +273,7 @@ void read_words(FILE *f, FILE *inf) {
             current = current->next;
     }
 
+    //Assign levels and use Gate.number to assign numeric values to fanin
     int c = 0;
     int it = 0;
     int fan = 0;
@@ -294,6 +307,7 @@ void read_words(FILE *f, FILE *inf) {
         }
     }
 
+    //Print the list of Gate in the linked list
     printf("\nGate_records in the linked list:\n");
     current = gateRecords;
     int highest_lvl = 0;
@@ -310,10 +324,12 @@ void read_words(FILE *f, FILE *inf) {
         if(current->Level == 2){
 
         }
-        printf("GateName: %s, GateType: %d, Level: %d, Output: %s, Number: %d, Fanout: %s, Fanin: %s, Fanin[0]: %d, Fanin[1]: %d\n",
-               current->GateName, current->GateType, current->Level, current->output ? "true" : "false", current->Number, current->outputs, current->inputs, current->fanin[0], current->fanin[1]);
+        printf("GateName: %s, GateType: %d, Level: %d, Output: %s, Number: %d, Fanout: %s, Fanin: %s\n",
+               current->GateName, current->GateType, current->Level, current->output ? "true" : "false", current->Number, current->outputs, current->inputs);
         current = current->next;
     }
+
+    //Print the number of gates at each level
     int lvl;
     int gn;
     int total;
@@ -334,26 +350,27 @@ void read_words(FILE *f, FILE *inf) {
     printf("\nTotal number of gates: %d\n", total);
     printf("\n");
 
-
-
-        //Simulation//
+    //////////////
+    //Simulation//
+    /////////////
     int a;
     int b;
     int loc = 0;
     int outf[total];
     int ii;
 
+    //Initialize array of outputs for each gate to undefined 
     for(ii = 0; ii < total; ii++) {
         outf[ii] = 4;
     }
 
-  //printf("STARTING SIMULATION\n"); 
+    //For each word in input file... 
   while (fscanf(inf, " %1023s", x) == 1) {
-    //printf("Current word: %s\n", x);
-
     loc = 0;
     printf("Inputs: ");
     current = gateRecords;
+
+    //Assign input to each input gate in circuit
     while (current != NULL) {
             if(current->GateType == 0){
                 if (x[loc] == '0') {
@@ -371,7 +388,8 @@ void read_words(FILE *f, FILE *inf) {
             current = current->next;
     }
 
-    //printf("\nSTARTING LEVEL CHECKS\n"); 
+    //For each level in the circuit, assign the output of gate at this 
+    //current level using outputs of gates from previous level
     for(lvl=1; lvl <= highest_lvl; lvl++){
         outerc = gateRecords;
 
@@ -380,7 +398,6 @@ void read_words(FILE *f, FILE *inf) {
 
                 a = outf[outerc->fanin[0]];
                 b = outf[outerc->fanin[1]];
-                //printf("For gate %s the inputs are: %d and %d", outerc->GateName, a, b);
                 if(outerc->GateType == 3){
 
                     if(a == 4 && b == 4){
@@ -423,8 +440,6 @@ void read_words(FILE *f, FILE *inf) {
                         outf[outerc->Number] = a ? 4 : 1;
 
                     }else{
-                        //printf("outerc->GateName: %s\n", outerc->GateName);
-                        //printf("outerc->Number: %d\n", outerc->Number);
                         outf[outerc->Number] = !(a && b);
 
                     }
@@ -449,16 +464,16 @@ void read_words(FILE *f, FILE *inf) {
                         outf[outerc->Number] = 4;
 
                     }else{
-                        //printf("BRUH: %d\n", a);
                         outf[outerc->Number] = !a;
 
                     }
                 }
-                //printf(" and output is: %d\n", outf[outerc->Number]);       
             }
             outerc = outerc->next;
         }
     }
+
+    //Print current state
     current = gateRecords;
     printf("\nState: ");
     while (current != NULL) {
@@ -467,6 +482,8 @@ void read_words(FILE *f, FILE *inf) {
             }
             current = current->next;
     }
+
+    //Print output
     printf("\nOutput: ");
     current = gateRecords;
     while (current != NULL) {
@@ -479,7 +496,7 @@ void read_words(FILE *f, FILE *inf) {
     printf("\n");
     printf("\n");
 
-    //printf("STARTING DFF UPDATES\n"); 
+    //Update the DFF from outputs of gates after end of clock cycle
     outerc = gateRecords;
     while (outerc != NULL){
         if(outerc->GateType == 1){
@@ -489,23 +506,25 @@ void read_words(FILE *f, FILE *inf) {
         outerc = outerc->next;
     }
 
-    //printf("preparing for next word...\n");
   }
 
 }
+
+//MAIN//
+
 int main() {
     FILE *file2 = fopen("s35.txt", "r");
     FILE *file1 = fopen("s27.txt", "r");
-    if (file1 == NULL) {
-        perror("Error opening file");
-        return 1;
-    }
     FILE *input_file1 = fopen("s27_test.txt", "r");
     FILE *input_file2 = fopen("s35_test.txt", "r");
 
+    if (file1 == NULL || file2 == NULL || input_file1 == NULL || input_file2 == NULL) {
+        perror("Error opening file");
+        return 1;
+    }
+
     struct timeval start_time, end_time;
     double execution_time;
-
     gettimeofday(&start_time, NULL);
 
     //read_words(file1, input_file1);
@@ -513,13 +532,8 @@ int main() {
     fclose(file1);
 
     gettimeofday(&end_time, NULL);
-
     execution_time = (end_time.tv_sec - start_time.tv_sec) +
                      (end_time.tv_usec - start_time.tv_usec) / 1e6;
-
     printf("Execution Time: %f seconds\n", execution_time);
-
-
     return 0;
 }
- 
